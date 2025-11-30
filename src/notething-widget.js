@@ -250,7 +250,9 @@ export class NotethingWidget {
 
     const leadingWhitespace = result.match(/^\s*/)?.[0] ?? '';
     const contentWithoutIndent = result.slice(leadingWhitespace.length);
-    const shouldCapitalize = this.options.autoCapitalizeFirstWord && (this.options.autoCapitalizeIndented || leadingWhitespace.length === 0);
+    const hasMarkdownPrefix = /^[-*+]\s+|^\d+\.\s+|^>\s+/.test(contentWithoutIndent);
+    const shouldCapitalize = this.options.autoCapitalizeFirstWord
+      && (this.options.autoCapitalizeIndented || leadingWhitespace.length === 0 || hasMarkdownPrefix);
 
     if (shouldCapitalize && contentWithoutIndent) {
       const firstLetterMatch = contentWithoutIndent.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/);
