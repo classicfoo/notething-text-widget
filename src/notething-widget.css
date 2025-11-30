@@ -1,0 +1,39 @@
+.ntw-editor {
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 180px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+  background: #fff;
+  color: #111827;
+  position: relative;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.ntw-editor:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.ntw-editor div {
+  min-height: 1.25em;
+}
+
+.ntw-editor:not(.ntw-has-content)::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  position: absolute;
+  pointer-events: none;
+  left: 12px;
+  top: 12px;
+  font-weight: 400;
+}
+
+.ntw-highlight {
+  background: #fff2a8;
+  padding: 0 2px;
+  border-radius: 2px;
+}
