@@ -18,7 +18,13 @@ export class NotethingWidget {
     this.root = this._resolveElement(element);
     this.root.classList.add('ntw-editor');
     this._applyBaseStyles();
-    this.root.contentEditable = 'true';
+    // Prefer plaintext-only when available so pasted HTML is stripped while still
+    // behaving as a normal contenteditable for typing. Fallback to true on
+    // browsers that do not support the value.
+    this.root.setAttribute('contenteditable', 'plaintext-only');
+    if (this.root.contentEditable !== 'plaintext-only') {
+      this.root.contentEditable = 'true';
+    }
     this.root.setAttribute('role', 'textbox');
     this.root.setAttribute('aria-multiline', 'true');
     this.root.dataset.placeholder = this.options.placeholder;
@@ -153,7 +159,7 @@ export class NotethingWidget {
   _normalizeStructure() {
     if (this.root.childNodes.length === 0) {
       const line = document.createElement('div');
-      line.innerHTML = '<br>';
+      line.appendChild(document.createTextNode(''));
       this.root.appendChild(line);
       return;
     }
@@ -225,13 +231,13 @@ export class NotethingWidget {
     selection.removeAllRanges();
 
     const range = document.createRange();
-    let targetNode;
-    if (lineEl.childNodes.length === 0) {
-      const textNode = document.createTextNode('');
+    let targetNode = lineEl.childNodes[0];
+
+    if (!targetNode || targetNode.nodeType !== Node.TEXT_NODE) {
+      const textNode = document.createTextNode(targetNode?.textContent ?? '');
+      lineEl.textContent = '';
       lineEl.appendChild(textNode);
       targetNode = textNode;
-    } else {
-      targetNode = lineEl.childNodes[0];
     }
 
     const offset = Math.min(column, targetNode.textContent?.length ?? 0);
