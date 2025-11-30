@@ -253,7 +253,11 @@ export class NotethingWidget {
     const shouldCapitalize = this.options.autoCapitalizeFirstWord && (this.options.autoCapitalizeIndented || leadingWhitespace.length === 0);
 
     if (shouldCapitalize && contentWithoutIndent) {
-      result = `${leadingWhitespace}${contentWithoutIndent[0].toUpperCase()}${contentWithoutIndent.slice(1)}`;
+      const firstLetterMatch = contentWithoutIndent.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/);
+      if (firstLetterMatch && firstLetterMatch.index !== undefined) {
+        const letterIndex = firstLetterMatch.index;
+        result = `${leadingWhitespace}${contentWithoutIndent.slice(0, letterIndex)}${contentWithoutIndent[letterIndex].toUpperCase()}${contentWithoutIndent.slice(letterIndex + 1)}`;
+      }
     }
 
     lineEl.textContent = result + trailingWhitespace;
