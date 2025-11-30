@@ -250,10 +250,16 @@ export class NotethingWidget {
 
     const leadingWhitespace = result.match(/^\s*/)?.[0] ?? '';
     const contentWithoutIndent = result.slice(leadingWhitespace.length);
-    const shouldCapitalize = this.options.autoCapitalizeFirstWord && (this.options.autoCapitalizeIndented || leadingWhitespace.length === 0);
+    const hasMarkdownPrefix = /^[-*+]\s+|^\d+\.\s+|^>\s+/.test(contentWithoutIndent);
+    const shouldCapitalize = this.options.autoCapitalizeFirstWord
+      && (this.options.autoCapitalizeIndented || leadingWhitespace.length === 0 || hasMarkdownPrefix);
 
     if (shouldCapitalize && contentWithoutIndent) {
-      result = `${leadingWhitespace}${contentWithoutIndent[0].toUpperCase()}${contentWithoutIndent.slice(1)}`;
+      const firstLetterMatch = contentWithoutIndent.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/);
+      if (firstLetterMatch && firstLetterMatch.index !== undefined) {
+        const letterIndex = firstLetterMatch.index;
+        result = `${leadingWhitespace}${contentWithoutIndent.slice(0, letterIndex)}${contentWithoutIndent[letterIndex].toUpperCase()}${contentWithoutIndent.slice(letterIndex + 1)}`;
+      }
     }
 
     lineEl.textContent = result + trailingWhitespace;
