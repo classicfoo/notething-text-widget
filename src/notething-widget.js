@@ -34,14 +34,20 @@ export class NotethingWidget {
     this._updatePlaceholderState();
 
     this._boundKeydown = this._handleKeydown.bind(this);
+    this._boundKeyup = this._handleKeyup.bind(this);
     this._boundInput = this._handleInput.bind(this);
+    this._boundPaste = this._handlePaste.bind(this);
     this.root.addEventListener('keydown', this._boundKeydown);
+    this.root.addEventListener('keyup', this._boundKeyup);
     this.root.addEventListener('input', this._boundInput);
+    this.root.addEventListener('paste', this._boundPaste);
   }
 
   destroy() {
     this.root.removeEventListener('keydown', this._boundKeydown);
+    this.root.removeEventListener('keyup', this._boundKeyup);
     this.root.removeEventListener('input', this._boundInput);
+    this.root.removeEventListener('paste', this._boundPaste);
   }
 
   _applyBaseStyles() {
@@ -69,9 +75,30 @@ export class NotethingWidget {
   }
 
   _handleInput() {
+    this._runNormalizationAndFormatting();
+  }
+
+  _handleKeyup(event) {
+    // Some browsers can miss the input event on contenteditable. Running the
+    // formatter on keyup keeps behaviors like capitalization consistent.
+    if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
+      this._runNormalizationAndFormatting();
+    }
+  }
+
+  _handlePaste(event) {
+    event.preventDefault();
+    const text = event.clipboardData?.getData('text/plain') ?? '';
+    document.execCommand('insertText', false, text);
+    this._runNormalizationAndFormatting();
+  }
+
+  _runNormalizationAndFormatting() {
+    const caret = this._captureCaret();
     this._normalizeStructure();
     this._applyFormattingToAllLines();
     this._updatePlaceholderState();
+    this._restoreCaret(caret);
   }
 
   _handleKeydown(event) {
@@ -218,6 +245,46 @@ export class NotethingWidget {
     }
 
     lineEl.textContent = result;
+  }
+
+  _captureCaret() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    const range = selection.getRangeAt(0);
+    let lineEl = range.startContainer;
+    while (lineEl && lineEl !== this.root && lineEl.parentElement !== this.root) {
+      lineEl = lineEl.parentNode;
+    }
+
+    if (!(lineEl instanceof HTMLElement) || lineEl.parentElement !== this.root) return null;
+
+    const offset = range.startOffset;
+    let textNode = range.startContainer;
+    if (textNode.nodeType !== Node.TEXT_NODE) {
+      textNode = lineEl.firstChild;
+    }
+
+    return { lineEl, offset, textNodeIndex: Array.from(lineEl.childNodes).indexOf(textNode) };
+  }
+
+  _restoreCaret(caret) {
+    if (!caret) return;
+    const { lineEl, offset, textNodeIndex } = caret;
+    if (!lineEl || lineEl.parentElement !== this.root) return;
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const targetNode = lineEl.childNodes[textNodeIndex] || lineEl.firstChild;
+    if (!targetNode) return;
+
+    const safeOffset = Math.min(offset, targetNode.textContent?.length ?? 0);
+    const range = document.createRange();
+    range.setStart(targetNode, safeOffset);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   _updatePlaceholderState() {
