@@ -99,7 +99,11 @@ export class NotethingWidget {
     this._normalizeStructure();
     this._applyFormattingToAllLines();
     this._updatePlaceholderState();
-    this._restoreCaret(caret);
+    if (caret) {
+      this._restoreCaret(caret);
+    } else {
+      this._placeCursorAtEnd();
+    }
   }
 
   _handleKeydown(event) {
@@ -319,6 +323,13 @@ export class NotethingWidget {
     range.setStart(targetNode, offset);
     range.collapse(true);
     selection.addRange(range);
+  }
+
+  _placeCursorAtEnd() {
+    const lineEl = this.root.lastElementChild || this.root.firstElementChild;
+    if (!lineEl) return;
+    const textLength = lineEl.textContent?.length ?? 0;
+    this._placeCursor(lineEl, textLength);
   }
 }
 
