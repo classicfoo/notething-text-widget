@@ -17,6 +17,7 @@ export class NotethingWidget {
     this.options = normalizeOptions(options);
     this.root = this._resolveElement(element);
     this.root.classList.add('ntw-editor');
+    this._applyBaseStyles();
     this.root.contentEditable = 'true';
     this.root.setAttribute('role', 'textbox');
     this.root.setAttribute('aria-multiline', 'true');
@@ -35,6 +36,18 @@ export class NotethingWidget {
   destroy() {
     this.root.removeEventListener('keydown', this._boundKeydown);
     this.root.removeEventListener('input', this._boundInput);
+  }
+
+  _applyBaseStyles() {
+    const style = this.root.style;
+    if (!style.minHeight) style.minHeight = '180px';
+    if (!style.padding) style.padding = '12px';
+    if (!style.border) style.border = '1px solid #d0d7de';
+    if (!style.borderRadius) style.borderRadius = '8px';
+    if (!style.background) style.background = '#fff';
+    if (!style.color) style.color = '#111827';
+    if (!style.whiteSpace) style.whiteSpace = 'pre-wrap';
+    if (!style.wordBreak) style.wordBreak = 'break-word';
   }
 
   _resolveElement(element) {
