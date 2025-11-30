@@ -47,6 +47,20 @@
       margin-top: 8px;
       font-size: 14px;
     }
+
+    /* Fallback styling so the editor area stays visible even if JS or CSS fail to load */
+    #notething {
+      min-height: 200px;
+      padding: 12px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #9ca3af;
+    }
+
+    body.ntw-loaded #notething {
+      color: inherit;
+    }
   </style>
 </head>
 <body>
@@ -78,29 +92,40 @@
   <script type="module">
     import { NotethingWidget } from './src/notething-widget.js';
 
-    const editor = new NotethingWidget('#notething', {
-      placeholder: 'Write notes with auto-formatting…',
-      autoFullStop: true,
-      autoCapitalizeHeadings: true,
-      autoCapitalizeFirstWord: true,
-      autoCapitalizeIndented: false,
-    });
+    const target = document.getElementById('notething');
 
-    document.getElementById('autoFullStop').addEventListener('change', (event) => {
-      editor.options.autoFullStop = event.target.checked;
-    });
+    try {
+      target.textContent = '';
 
-    document.getElementById('autoCapHeadings').addEventListener('change', (event) => {
-      editor.options.autoCapitalizeHeadings = event.target.checked;
-    });
+      const editor = new NotethingWidget('#notething', {
+        placeholder: 'Write notes with auto-formatting…',
+        autoFullStop: true,
+        autoCapitalizeHeadings: true,
+        autoCapitalizeFirstWord: true,
+        autoCapitalizeIndented: false,
+      });
 
-    document.getElementById('autoCapFirst').addEventListener('change', (event) => {
-      editor.options.autoCapitalizeFirstWord = event.target.checked;
-    });
+      document.body.classList.add('ntw-loaded');
 
-    document.getElementById('autoCapIndented').addEventListener('change', (event) => {
-      editor.options.autoCapitalizeIndented = event.target.checked;
-    });
+      document.getElementById('autoFullStop').addEventListener('change', (event) => {
+        editor.options.autoFullStop = event.target.checked;
+      });
+
+      document.getElementById('autoCapHeadings').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeHeadings = event.target.checked;
+      });
+
+      document.getElementById('autoCapFirst').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeFirstWord = event.target.checked;
+      });
+
+      document.getElementById('autoCapIndented').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeIndented = event.target.checked;
+      });
+    } catch (error) {
+      console.error('Failed to initialize NotethingWidget', error);
+      target.textContent = 'Editor failed to load.';
+    }
   </script>
 </body>
 </html>
