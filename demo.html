@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notething Text Widget Demo</title>
+  <link rel="stylesheet" href="src/notething-widget.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 32px;
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: #f3f4f6;
+    }
+
+    .layout {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .controls label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 14px;
+      color: #111827;
+    }
+
+    .hint {
+      color: #6b7280;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    /* Fallback styling so the editor area stays visible even if JS or CSS fail to load */
+    #notething {
+      min-height: 200px;
+      padding: 12px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #9ca3af;
+    }
+
+    body.ntw-loaded #notething {
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <h1>Notething Text Widget</h1>
+    <p class="hint">Enter text below. Press Enter to keep your indentation and auto-add punctuation, and use Ctrl + Shift + H to highlight selections.</p>
+    <p class="hint" id="serveWarning" style="display: none; color: #b45309; background: #fffbeb; border: 1px solid #f59e0b; padding: 8px 12px; border-radius: 8px;">
+      For security reasons, browsers block modules when opened from <code>file://</code>. Start a local server (e.g.
+      <code>python -m http.server 5500</code>) and open <code>http://localhost:5500/demo.html</code> to try the widget.
+    </p>
+    <div class="controls">
+      <label>
+        <input id="autoFullStop" type="checkbox" checked />
+        Auto add full stop on Enter
+      </label>
+      <label>
+        <input id="autoCapHeadings" type="checkbox" checked />
+        Auto-capitalize heading words (# Heading)
+      </label>
+      <label>
+        <input id="autoCapFirst" type="checkbox" checked />
+        Auto-capitalize first word in lines
+      </label>
+      <label>
+        <input id="autoCapIndented" type="checkbox" />
+        Include indented lines in capitalization
+      </label>
+    </div>
+
+    <div id="notething" contenteditable="plaintext-only"></div>
+  </div>
+
+  <script type="module">
+    if (location.protocol === 'file:') {
+      document.getElementById('serveWarning').style.display = 'block';
+    }
+
+    import { NotethingWidget } from './src/notething-widget.js';
+
+    const target = document.getElementById('notething');
+
+    try {
+      target.textContent = '';
+
+      const editor = new NotethingWidget('#notething', {
+        placeholder: 'Write notes with auto-formatting…',
+        autoFullStop: true,
+        autoCapitalizeHeadings: true,
+        autoCapitalizeFirstWord: true,
+        autoCapitalizeIndented: false,
+      });
+
+      document.body.classList.add('ntw-loaded');
+
+      document.getElementById('autoFullStop').addEventListener('change', (event) => {
+        editor.options.autoFullStop = event.target.checked;
+      });
+
+      document.getElementById('autoCapHeadings').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeHeadings = event.target.checked;
+      });
+
+      document.getElementById('autoCapFirst').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeFirstWord = event.target.checked;
+      });
+
+      document.getElementById('autoCapIndented').addEventListener('change', (event) => {
+        editor.options.autoCapitalizeIndented = event.target.checked;
+      });
+    } catch (error) {
+      console.error('Failed to initialize NotethingWidget', error);
+      target.textContent = 'Editor failed to load.';
+    }
+  </script>
+  </body>
+</html>
