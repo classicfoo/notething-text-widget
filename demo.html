@@ -88,6 +88,10 @@
         <input id="autoCapIndented" type="checkbox" />
         Include indented lines in capitalization
       </label>
+      <label>
+        <input id="convertDoubleSpaces" type="checkbox" checked />
+        Convert double spaces to tabs
+      </label>
     </div>
 
     <div id="notething" contenteditable="plaintext-only"></div>
@@ -111,6 +115,7 @@
         autoCapitalizeHeadings: true,
         autoCapitalizeFirstWord: true,
         autoCapitalizeIndented: false,
+        convertDoubleSpacesToTabs: true,
       });
 
       document.body.classList.add('ntw-loaded');
@@ -129,6 +134,10 @@
 
       document.getElementById('autoCapIndented').addEventListener('change', (event) => {
         editor.options.autoCapitalizeIndented = event.target.checked;
+      });
+
+      document.getElementById('convertDoubleSpaces').addEventListener('change', (event) => {
+        editor.options.convertDoubleSpacesToTabs = event.target.checked;
       });
     } catch (error) {
       console.error('Failed to initialize NotethingWidget', error);
