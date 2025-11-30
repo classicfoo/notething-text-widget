@@ -218,22 +218,27 @@ export class NotethingWidget {
 
   _applyFormattingToLine(lineEl) {
     const text = lineEl.textContent ?? '';
-    const trimmedText = text.trim();
+    const trailingWhitespace = text.match(/\s*$/)?.[0] ?? '';
+    const textWithoutTrailing = text.slice(0, text.length - trailingWhitespace.length);
+    const trimmedText = textWithoutTrailing.trim();
     if (!trimmedText) {
-      if (text.length) {
-        lineEl.textContent = text;
+      if (textWithoutTrailing.length || trailingWhitespace.length) {
+        lineEl.textContent = textWithoutTrailing + trailingWhitespace;
       } else {
         lineEl.innerHTML = '<br>';
       }
       return;
     }
 
-    let result = text;
+    let result = textWithoutTrailing;
 
     if (this.options.autoCapitalizeHeadings && result.trim().startsWith('#')) {
-      const [hashes, ...rest] = result.trim().split(/\s+/);
-      const capitalized = rest.map(word => word ? word[0].toUpperCase() + word.slice(1) : '').join(' ');
-      result = `${hashes} ${capitalized}`.trim();
+      const headingMatch = result.match(/^(\s*#+\s*)(.*)$/);
+      if (headingMatch) {
+        const [, headingPrefix, headingContent] = headingMatch;
+        const capitalizedContent = headingContent.replace(/(^|\s)(\S)/g, (match, boundary, char) => `${boundary}${char.toUpperCase()}`);
+        result = `${headingPrefix}${capitalizedContent}`;
+      }
     }
 
     const leadingWhitespace = result.match(/^\s*/)?.[0] ?? '';
@@ -244,7 +249,7 @@ export class NotethingWidget {
       result = `${leadingWhitespace}${contentWithoutIndent[0].toUpperCase()}${contentWithoutIndent.slice(1)}`;
     }
 
-    lineEl.textContent = result;
+    lineEl.textContent = result + trailingWhitespace;
   }
 
   _captureCaret() {
