@@ -218,17 +218,19 @@ export class NotethingWidget {
 
   _applyFormattingToLine(lineEl) {
     const text = lineEl.textContent ?? '';
-    const trimmedText = text.trim();
+    const trailingWhitespace = text.match(/\s*$/)?.[0] ?? '';
+    const textWithoutTrailing = text.slice(0, text.length - trailingWhitespace.length);
+    const trimmedText = textWithoutTrailing.trim();
     if (!trimmedText) {
-      if (text.length) {
-        lineEl.textContent = text;
+      if (textWithoutTrailing.length || trailingWhitespace.length) {
+        lineEl.textContent = textWithoutTrailing + trailingWhitespace;
       } else {
         lineEl.innerHTML = '<br>';
       }
       return;
     }
 
-    let result = text;
+    let result = textWithoutTrailing;
 
     if (this.options.autoCapitalizeHeadings && result.trim().startsWith('#')) {
       const [hashes, ...rest] = result.trim().split(/\s+/);
@@ -244,7 +246,7 @@ export class NotethingWidget {
       result = `${leadingWhitespace}${contentWithoutIndent[0].toUpperCase()}${contentWithoutIndent.slice(1)}`;
     }
 
-    lineEl.textContent = result;
+    lineEl.textContent = result + trailingWhitespace;
   }
 
   _captureCaret() {
