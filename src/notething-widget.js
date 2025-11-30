@@ -4,6 +4,7 @@ const DEFAULT_OPTIONS = {
   autoCapitalizeFirstWord: true,
   autoCapitalizeIndented: false,
   autoFullStop: true,
+  convertDoubleSpacesToTabs: true,
   highlightEnabled: true,
   highlightClass: 'ntw-highlight'
 };
@@ -217,7 +218,9 @@ export class NotethingWidget {
   }
 
   _applyFormattingToLine(lineEl) {
-    const text = (lineEl.textContent ?? '').replace(/ {2}/g, '\t');
+    const text = this.options.convertDoubleSpacesToTabs
+      ? (lineEl.textContent ?? '').replace(/ {2}/g, '\t')
+      : lineEl.textContent ?? '';
     const trailingWhitespace = text.match(/\s*$/)?.[0] ?? '';
     const textWithoutTrailing = text.slice(0, text.length - trailingWhitespace.length);
     const trimmedText = textWithoutTrailing.trim();
