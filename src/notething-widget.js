@@ -233,9 +233,12 @@ export class NotethingWidget {
     let result = textWithoutTrailing;
 
     if (this.options.autoCapitalizeHeadings && result.trim().startsWith('#')) {
-      const [hashes, ...rest] = result.trim().split(/\s+/);
-      const capitalized = rest.map(word => word ? word[0].toUpperCase() + word.slice(1) : '').join(' ');
-      result = `${hashes} ${capitalized}`.trim();
+      const headingMatch = result.match(/^(\s*#+\s*)(.*)$/);
+      if (headingMatch) {
+        const [, headingPrefix, headingContent] = headingMatch;
+        const capitalizedContent = headingContent.replace(/(^|\s)(\S)/g, (match, boundary, char) => `${boundary}${char.toUpperCase()}`);
+        result = `${headingPrefix}${capitalizedContent}`;
+      }
     }
 
     const leadingWhitespace = result.match(/^\s*/)?.[0] ?? '';
