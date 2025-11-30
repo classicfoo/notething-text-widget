@@ -217,7 +217,7 @@ export class NotethingWidget {
   }
 
   _applyFormattingToLine(lineEl) {
-    const text = lineEl.textContent ?? '';
+    const text = (lineEl.textContent ?? '').replace(/ {2}/g, '\t');
     const trailingWhitespace = text.match(/\s*$/)?.[0] ?? '';
     const textWithoutTrailing = text.slice(0, text.length - trailingWhitespace.length);
     const trimmedText = textWithoutTrailing.trim();
