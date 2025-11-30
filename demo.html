@@ -67,6 +67,10 @@
   <div class="layout">
     <h1>Notething Text Widget</h1>
     <p class="hint">Enter text below. Press Enter to keep your indentation and auto-add punctuation, and use Ctrl + Shift + H to highlight selections.</p>
+    <p class="hint" id="serveWarning" style="display: none; color: #b45309; background: #fffbeb; border: 1px solid #f59e0b; padding: 8px 12px; border-radius: 8px;">
+      For security reasons, browsers block modules when opened from <code>file://</code>. Start a local server (e.g.
+      <code>python -m http.server 5500</code>) and open <code>http://localhost:5500/demo.html</code> to try the widget.
+    </p>
     <div class="controls">
       <label>
         <input id="autoFullStop" type="checkbox" checked />
@@ -90,6 +94,10 @@
   </div>
 
   <script type="module">
+    if (location.protocol === 'file:') {
+      document.getElementById('serveWarning').style.display = 'block';
+    }
+
     import { NotethingWidget } from './src/notething-widget.js';
 
     const target = document.getElementById('notething');
@@ -127,5 +135,5 @@
       target.textContent = 'Editor failed to load.';
     }
   </script>
-</body>
+  </body>
 </html>

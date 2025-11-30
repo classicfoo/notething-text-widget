@@ -30,7 +30,13 @@ Include the CSS, import the widget, and point it at a container element:
 ```
 
 ## Demo
-Open `demo.html` in your browser to try the widget with live toggles for capitalization settings and the auto-full-stop behavior.
+To try the widget with live toggles for capitalization settings and the auto-full-stop behavior, serve the project over HTTP so the ES module loads correctly:
+
+```bash
+python -m http.server 5500
+```
+
+Then open [http://localhost:5500/demo.html](http://localhost:5500/demo.html) in your browser.
 
 ## Options
 | Option | Type | Default | Description |
