@@ -136,6 +136,12 @@ export class NotethingWidget {
     const indentation = text.match(/^\s*/)?.[0] ?? '';
     const trimmed = text.trim();
 
+    const shouldResetIndentation = !trimmed && indentation.length > 0;
+
+    if (shouldResetIndentation) {
+      lineEl.textContent = '';
+    }
+
     if (this.options.autoFullStop && trimmed && !trimmed.startsWith('#') && !/[.!?]$/.test(trimmed)) {
       lineEl.textContent = `${text.trimEnd()}.`;
     }
@@ -143,8 +149,9 @@ export class NotethingWidget {
     this._applyFormattingToLine(lineEl);
 
     const newLine = document.createElement('div');
-    newLine.textContent = indentation;
-    if (!indentation) {
+    const nextIndentation = shouldResetIndentation ? '' : indentation;
+    newLine.textContent = nextIndentation;
+    if (!nextIndentation) {
       newLine.innerHTML = '<br>';
     }
 
@@ -154,7 +161,7 @@ export class NotethingWidget {
       lineEl.parentNode.appendChild(newLine);
     }
 
-    this._placeCursor(newLine, indentation.length);
+    this._placeCursor(newLine, nextIndentation.length);
     this._updatePlaceholderState();
   }
 
