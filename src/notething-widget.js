@@ -109,6 +109,11 @@ export class NotethingWidget {
   }
 
   _handleKeydown(event) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      return;
+    }
+
     if (event.key === 'Enter') {
       this._handleEnter(event);
       return;
