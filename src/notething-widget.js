@@ -114,6 +114,13 @@ export class NotethingWidget {
       return;
     }
 
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      document.execCommand('insertText', false, '\t');
+      this._runNormalizationAndFormatting();
+      return;
+    }
+
     if (this.options.highlightEnabled && event.key.toLowerCase() === 'h' && event.ctrlKey && event.shiftKey) {
       event.preventDefault();
       this._toggleHighlightSelection();
