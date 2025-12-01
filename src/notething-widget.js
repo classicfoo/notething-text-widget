@@ -82,6 +82,8 @@ export class NotethingWidget {
   _handleKeyup(event) {
     // Some browsers can miss the input event on contenteditable. Running the
     // formatter on keyup keeps behaviors like capitalization consistent.
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+
     if (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete') {
       this._runNormalizationAndFormatting();
     }
