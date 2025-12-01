@@ -106,38 +106,75 @@
 
     const target = document.getElementById('notething');
 
+    const controls = [
+      { id: 'autoFullStop', option: 'autoFullStop', defaultValue: true },
+      { id: 'autoCapHeadings', option: 'autoCapitalizeHeadings', defaultValue: true },
+      { id: 'autoCapFirst', option: 'autoCapitalizeFirstWord', defaultValue: true },
+      { id: 'autoCapIndented', option: 'autoCapitalizeIndented', defaultValue: false },
+      { id: 'convertDoubleSpaces', option: 'convertDoubleSpacesToTabs', defaultValue: true },
+    ];
+
+    const defaultPreferences = Object.fromEntries(
+      controls.map(({ option, defaultValue }) => [option, defaultValue])
+    );
+
+    const readPreferences = () => {
+      try {
+        const stored = localStorage.getItem('ntw-demo-preferences');
+        if (!stored) return { ...defaultPreferences };
+
+        const parsed = JSON.parse(stored);
+        return {
+          ...defaultPreferences,
+          ...Object.fromEntries(
+            controls.map(({ option, defaultValue }) => [
+              option,
+              typeof parsed?.[option] === 'boolean' ? parsed[option] : defaultValue,
+            ])
+          ),
+        };
+      } catch (error) {
+        console.warn('Unable to read preferences, using defaults', error);
+        return { ...defaultPreferences };
+      }
+    };
+
+    const persistPreferences = (preferences) => {
+      try {
+        localStorage.setItem('ntw-demo-preferences', JSON.stringify(preferences));
+      } catch (error) {
+        console.warn('Unable to store preferences', error);
+      }
+    };
+
+    const preferences = readPreferences();
+
+    controls.forEach(({ id, option }) => {
+      const input = document.getElementById(id);
+      input.checked = preferences[option];
+    });
+
     try {
       target.textContent = '';
 
       const editor = new NotethingWidget('#notething', {
         placeholder: 'Write notes with auto-formatting…',
-        autoFullStop: true,
-        autoCapitalizeHeadings: true,
-        autoCapitalizeFirstWord: true,
-        autoCapitalizeIndented: false,
-        convertDoubleSpacesToTabs: true,
+        autoFullStop: preferences.autoFullStop,
+        autoCapitalizeHeadings: preferences.autoCapitalizeHeadings,
+        autoCapitalizeFirstWord: preferences.autoCapitalizeFirstWord,
+        autoCapitalizeIndented: preferences.autoCapitalizeIndented,
+        convertDoubleSpacesToTabs: preferences.convertDoubleSpacesToTabs,
       });
 
       document.body.classList.add('ntw-loaded');
 
-      document.getElementById('autoFullStop').addEventListener('change', (event) => {
-        editor.options.autoFullStop = event.target.checked;
-      });
-
-      document.getElementById('autoCapHeadings').addEventListener('change', (event) => {
-        editor.options.autoCapitalizeHeadings = event.target.checked;
-      });
-
-      document.getElementById('autoCapFirst').addEventListener('change', (event) => {
-        editor.options.autoCapitalizeFirstWord = event.target.checked;
-      });
-
-      document.getElementById('autoCapIndented').addEventListener('change', (event) => {
-        editor.options.autoCapitalizeIndented = event.target.checked;
-      });
-
-      document.getElementById('convertDoubleSpaces').addEventListener('change', (event) => {
-        editor.options.convertDoubleSpacesToTabs = event.target.checked;
+      controls.forEach(({ id, option }) => {
+        document.getElementById(id).addEventListener('change', (event) => {
+          const checked = event.target.checked;
+          preferences[option] = checked;
+          editor.options[option] = checked;
+          persistPreferences(preferences);
+        });
       });
     } catch (error) {
       console.error('Failed to initialize NotethingWidget', error);
