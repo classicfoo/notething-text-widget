@@ -154,9 +154,9 @@ export class NotethingWidget {
     this._applyFormattingToLine(lineEl);
 
     const newLine = document.createElement('div');
-    const nextIndentation = shouldResetIndentation ? '' : indentation;
-    newLine.textContent = nextIndentation;
-    if (!nextIndentation) {
+    const nextPrefix = shouldResetIndentation ? '' : this._computeNextLinePrefix(text);
+    newLine.textContent = nextPrefix;
+    if (!nextPrefix) {
       newLine.innerHTML = '<br>';
     }
 
@@ -166,8 +166,20 @@ export class NotethingWidget {
       lineEl.parentNode.appendChild(newLine);
     }
 
-    this._placeCursor(newLine, nextIndentation.length);
+    this._placeCursor(newLine, nextPrefix.length);
     this._updatePlaceholderState();
+  }
+
+  _computeNextLinePrefix(currentLineText) {
+    const indentation = currentLineText.match(/^\s*/)?.[0] ?? '';
+    const markdownMatch = currentLineText.match(/^(\s*)([-*+]|\d+\.|>)(\s+)/);
+    if (!markdownMatch) return indentation;
+
+    const marker = markdownMatch[2];
+    const spacing = markdownMatch[3];
+    const nextMarker = /^\d+\.$/.test(marker) ? `${parseInt(marker, 10) + 1}.` : marker;
+
+    return `${indentation}${nextMarker}${spacing}`;
   }
 
   _toggleHighlightSelection() {
