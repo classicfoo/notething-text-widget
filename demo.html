@@ -49,7 +49,7 @@
     }
 
     /* Fallback styling so the editor area stays visible even if JS or CSS fail to load */
-    #notething {
+    #detailsInput {
       min-height: 200px;
       padding: 12px;
       border: 1px dashed #cbd5e1;
@@ -58,15 +58,15 @@
       color: #9ca3af;
     }
 
-    body.ntw-loaded #notething {
+    body.ntw-loaded #detailsInput {
       color: inherit;
     }
   </style>
 </head>
 <body>
   <div class="layout">
-    <h1>Notething Text Widget</h1>
-    <p class="hint">Enter text below. Press Enter to keep your indentation and auto-add punctuation, and use Ctrl + Shift + H to highlight selections.</p>
+    <h1>Task Description</h1>
+    <p class="hint">Type your task description below. Press Enter to keep your indentation and auto-add punctuation, and use Ctrl + Shift + H to highlight selections.</p>
     <p class="hint" id="serveWarning" style="display: none; color: #b45309; background: #fffbeb; border: 1px solid #f59e0b; padding: 8px 12px; border-radius: 8px;">
       For security reasons, browsers block modules when opened from <code>file://</code>. Start a local server (e.g.
       <code>python -m http.server 5500</code>) and open <code>http://localhost:5500/demo.html</code> to try the widget.
@@ -85,7 +85,7 @@
         Auto-capitalize first word in lines
       </label>
       <label>
-        <input id="autoCapIndented" type="checkbox" />
+        <input id="autoCapIndented" type="checkbox" checked />
         Include indented lines in capitalization
       </label>
       <label>
@@ -94,7 +94,7 @@
       </label>
     </div>
 
-    <div id="notething" contenteditable="plaintext-only"></div>
+    <div id="detailsInput" contenteditable="plaintext-only"></div>
   </div>
 
   <script type="module">
@@ -104,13 +104,13 @@
 
     import { NotethingWidget } from './src/notething-widget.js';
 
-    const target = document.getElementById('notething');
+    const target = document.getElementById('detailsInput');
 
     const controls = [
       { id: 'autoFullStop', option: 'autoFullStop', defaultValue: true },
       { id: 'autoCapHeadings', option: 'autoCapitalizeHeadings', defaultValue: true },
       { id: 'autoCapFirst', option: 'autoCapitalizeFirstWord', defaultValue: true },
-      { id: 'autoCapIndented', option: 'autoCapitalizeIndented', defaultValue: false },
+      { id: 'autoCapIndented', option: 'autoCapitalizeIndented', defaultValue: true },
       { id: 'convertDoubleSpaces', option: 'convertDoubleSpacesToTabs', defaultValue: true },
     ];
 
@@ -157,8 +157,8 @@
     try {
       target.textContent = '';
 
-      const editor = new NotethingWidget('#notething', {
-        placeholder: 'Write notes with auto-formatting…',
+      const editor = new NotethingWidget('#detailsInput', {
+        placeholder: 'Describe the task with auto-formatting…',
         autoFullStop: preferences.autoFullStop,
         autoCapitalizeHeadings: preferences.autoCapitalizeHeadings,
         autoCapitalizeFirstWord: preferences.autoCapitalizeFirstWord,
